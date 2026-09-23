@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | First-Commit</title>
+
+  <!-- FontAwesome Icons CDN -->
+  <script src="https://kit.fontawesome.com/a10bb03e8b.js" crossorigin="anonymous"></script>
+
+  <!-- Project Static CSS Files -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+
+<div class="dashboard-shell">
+
+  <!-- ===================================================
+       TOP NAVIGATION
+       =================================================== -->
+  <nav class="top-nav">
+    <!-- Brand -->
+    <a href="/" class="nav-brand" aria-label="First-Commit Home">
+      <div class="nav-brand-icon">
+        <i class="fa-solid fa-code-commit text-blue"></i>
+      </div>
+      <span class="nav-brand-title">First-Commit</span>
+      <span class="nav-brand-version">v0.1.0-alpha</span>
+    </a>
+
+    <!-- Centre: active repo selector -->
+    <div class="nav-center">
+      <div class="repo-selector" title="Select repository">
+        <i class="fa-solid fa-code-branch"></i>
+        <span>{{ user.login }} / &lt;select a repo&gt;</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <!-- Right: user info + logout -->
+    <div class="nav-user">
+      {% if user.avatar_url %}
+        <img class="user-avatar" src="{{ user.avatar_url }}" alt="{{ user.login }} avatar">
+      {% else %}
+        <div class="user-avatar-placeholder">
+          <i class="fa-solid fa-user"></i>
+        </div>
+      {% endif %}
+      <span class="user-name">{{ user.login }}</span>
+      <div class="user-divider"></div>
+      <a href="/" class="nav-logout" title="Sign out">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign out</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ===================================================
+       MAIN WORKSPACE (Sidebar + Panel)
+       =================================================== -->
+  <div class="workspace">
+
+    <!-- --- SIDEBAR: repo list --- -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-section-label">Repositories</span>
+      </div>
+
+      <div class="sidebar-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="sidebar-filter" placeholder="Filter repos…" autocomplete="off">
+      </div>
+
+      <div class="repo-list" id="sidebar-repo-list">
+        {% for repo in repos %}
+        <a
+          class="repo-item"
+          href="{{ repo.html_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="{{ repo.full_name }}"
+        >
+          <i class="fa-solid fa-{% if repo.private %}lock{% else %}book{% endif %} repo-item-icon"></i>
+          <div class="repo-item-body">
+            <div class="repo-item-name">{{ repo.name }}</div>
+            <div class="repo-item-meta">
+              {% if repo.language %}
+                <span class="repo-item-lang">{{ repo.language }}</span>
+              {% endif %}
+              {% if repo.private %}
+                <span class="repo-item-private">private</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+        {% else %}
+        <div style="padding: 1.5rem 1.25rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+          No repositories found.
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="sidebar-footer">
+        <i class="fa-solid fa-database" style="font-size: 0.7rem;"></i>
+        <span>{{ repos | length }} repo{% if repos | length != 1 %}s{% endif %} loaded</span>
+      </div>
+    </aside>
+
+    <!-- --- MAIN PANEL --- -->
+    <main class="main-panel">
+
+      <!-- Page heading -->
+      <div class="panel-heading">
+        <div>
+          <h1 class="panel-title">Good to see you, {{ user.name or user.login }}.</h1>
+          <p class="panel-subtitle">
+            Select a repository from the sidebar to map its architecture and find your first safe issue.
+          </p>
+        </div>
+        <a href="https://github.com/new" target="_blank" class="cta-btn">
+          <i class="fa-solid fa-plus"></i>
+          New Repository
+        </a>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-icon blue">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <div>
+            <div class="stat-card-label">Repositories</div>
+            <div class="stat-card-value">{{ repos | length }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon green">
+            <i class="fa-solid fa-lock-open"></i>
+          </div>
+          <div>
+            <div class="stat-card-label">Public</div>
+            <div class="stat-card-value">
+              {{ repos | selectattr("private", "equalto", false) | list | length }}
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon amber">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div>
+            <div class="stat-card-label">Private</div>
+            <div class="stat-card-value">
+              {{ repos | selectattr("private", "equalto", true) | list | length }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repo grid -->
+      <div>
+        <div class="section-label">All Repositories</div>
+
+        {% if repos %}
+        <div class="repo-grid" id="repo-grid">
+          {% for repo in repos %}
+          <a
+            class="repo-card"
+            href="{{ repo.html_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div class="repo-card-header">
+              <span class="repo-card-name">
+                <i class="fa-solid fa-{% if repo.private %}lock{% else %}book{% endif %}" style="font-size:0.75rem; margin-right: 0.35rem;"></i>
+                {{ repo.name }}
+              </span>
+              <span class="repo-card-visibility {% if repo.private %}private{% else %}public{% endif %}">
+                {% if repo.private %}private{% else %}public{% endif %}
+              </span>
+            </div>
+
+            {% if repo.description %}
+            <p class="repo-card-desc">{{ repo.description }}</p>
+            {% else %}
+            <p class="repo-card-desc" style="font-style: italic;">No description provided.</p>
+            {% endif %}
+
+            <div class="repo-card-footer">
+              {% if repo.language %}
+              <div class="repo-meta-item">
+                <span class="lang-dot"></span>
+                <span>{{ repo.language }}</span>
+              </div>
+              {% endif %}
+
+              <div class="repo-meta-item">
+                <i class="fa-regular fa-star"></i>
+                <span>{{ repo.stargazers_count }}</span>
+              </div>
+
+              <div class="repo-meta-item">
+                <i class="fa-solid fa-code-fork"></i>
+                <span>{{ repo.forks_count }}</span>
+              </div>
+
+              <div class="repo-meta-item">
+                <i class="fa-regular fa-circle-dot"></i>
+                <span>{{ repo.open_issues_count }}</span>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+          <i class="fa-solid fa-folder-open"></i>
+          <p>No repositories found on this account.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ===================================================
+       IDE STATUS FOOTER
+       =================================================== -->
+  <footer class="ide-status-footer">
+    <div class="status-left">
+      <div class="status-segment">
+        <span class="status-dot"></span>
+        <span>Connected</span>
+      </div>
+      <div class="status-segment">
+        <i class="fa-brands fa-github"></i>
+        <span>{{ user.login }}</span>
+      </div>
+    </div>
+    <div class="status-right">
+      <div class="status-segment">
+        <i class="fa-solid fa-code-branch"></i>
+        <span>main</span>
+      </div>
+      <div class="status-segment">
+        <span class="text-subtle">First-Commit IDE</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Sidebar live filter script (vanilla JS, no library) -->
+<script>
+  (function () {
+    const input = document.getElementById('sidebar-filter');
+    const items = document.querySelectorAll('#sidebar-repo-list .repo-item');
+
+    if (!input) return;
+
+    input.addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
+      items.forEach(function (item) {
+        const name = item.querySelector('.repo-item-name').textContent.toLowerCase();
+        item.style.display = (!q || name.includes(q)) ? '' : 'none';
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
+

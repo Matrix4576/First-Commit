@@ -6,24 +6,22 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
+BACKEND_DIR = BASE_DIR / "backend"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
-# ---------------------------------------------------------------------------
-# GitHub OAuth config – set these in your environment (e.g. via .env + python-dotenv)
-# ---------------------------------------------------------------------------
-GITHUB_CLIENT_ID     = os.getenv("GITHUB_CLIENT_ID", "")
-GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
-GITHUB_REDIRECT_URI  = os.getenv("GITHUB_REDIRECT_URI", "http://localhost:8000/auth/github/callback")
+load_dotenv(dotenv_path=BACKEND_DIR / ".env")
 
-# ---------------------------------------------------------------------------
-# App
-# ---------------------------------------------------------------------------
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+print(GITHUB_CLIENT_ID)
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
+print(GITHUB_CLIENT_SECRET)
+GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
+print(GITHUB_REDIRECT_URI)
+
 app = FastAPI(
     title="First-Commit",
     description="AI onboarding agent for junior developers making their first safe pull request.",
@@ -32,11 +30,6 @@ app = FastAPI(
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
-
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
 
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
