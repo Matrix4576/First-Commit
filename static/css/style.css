@@ -1,0 +1,89 @@
+/* First-Commit: Global Design System & Variables (Pure CSS) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Color Palette - The Trusted IDE */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #161b22;
+  --bg-subtle: #21262d;
+  
+  --border-default: #30363d;
+  --border-muted: #21262d;
+  
+  --text-primary: #f0f6fc;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-subtle: #484f58;
+  
+  /* Semantic Risk & Safety Palette */
+  --safe-color: #34d399;
+  --safe-bg: rgba(52, 211, 153, 0.1);
+  --safe-border: rgba(52, 211, 153, 0.2);
+  
+  --amber-color: #fbbf24;
+  --amber-bg: rgba(251, 191, 36, 0.1);
+  --amber-border: rgba(251, 191, 36, 0.2);
+  
+  --danger-color: #f43f5e;
+  --danger-bg: rgba(244, 63, 94, 0.1);
+  --danger-border: rgba(244, 63, 94, 0.2);
+  
+  --blue-color: #60a5fa;
+  --blue-bg: rgba(96, 165, 250, 0.1);
+  --blue-border: rgba(96, 165, 250, 0.2);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(96, 165, 250, 0.25);
+  color: #93c5fd;
+}
+
+/* Typography & Utility Helpers */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-blue {
+  color: var(--blue-color);
+}
+
+.text-safe {
+  color: var(--safe-color);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-subtle {
+  color: var(--text-subtle);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}

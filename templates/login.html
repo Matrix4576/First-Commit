@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | First-Commit</title>
+
+  <!-- FontAwesome Icons CDN -->
+  <script src="https://kit.fontawesome.com/a10bb03e8b.js" crossorigin="anonymous"></script>
+  
+  <!-- Project Static CSS Files -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+
+  <div class="login-page-wrapper">
+    <!-- Top Bar: Sleek Trusted IDE Header -->
+    <header class="login-header">
+      <a href="/" class="brand-badge" aria-label="First-Commit Home">
+        <div class="brand-icon-wrapper">
+          <i class="fa-solid fa-code-commit text-blue"></i>
+        </div>
+        <span class="brand-title">First-Commit</span>
+        <span class="brand-version">v0.1.0-alpha</span>
+      </a>
+
+      <div class="system-status">
+        <span class="status-dot"></span>
+        <span class="text-muted">Sandbox Guard Online</span>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="login-main">
+      <div class="login-card">
+        
+        <!-- Header Icon Badge -->
+        <div class="card-header-icon">
+          <i class="fa-solid fa-code-branch text-blue"></i>
+        </div>
+
+        <h1 class="card-title">Welcome to First-Commit</h1>
+        <p class="card-subtitle">
+          Onboard into complex codebases safely. Understand architecture, isolate safe issues, and submit your first production-ready pull request.
+        </p>
+
+        <!-- Safety Assurance Pill -->
+        <div class="safety-pill-wrapper">
+          <div class="safety-pill">
+            <i class="fa-solid fa-shield-halved text-safe"></i>
+            <span>Safe Blast Radius Verification</span>
+          </div>
+        </div>
+
+        <!-- Single Primary Action: GitHub OAuth Button -->
+        <div class="oauth-action-wrapper">
+          <a href="/auth/github" class="github-oauth-btn" id="github-login-btn">
+            <i class="fa-brands fa-github github-icon"></i>
+            <span>Continue with GitHub</span>
+          </a>
+        </div>
+
+        <!-- Trusted IDE Key Guarantees -->
+        <div class="login-features">
+          <div class="feature-item">
+            <span class="feature-code">01</span>
+            <span>Map architecture visually before touching any file</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-code">02</span>
+            <span>Identify beginner-safe issues with zero blast radius</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-code">03</span>
+            <span>Step-by-step guidance straight to your first PR</span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Bottom Status Bar (VS Code / IDE style) -->
+    <footer class="ide-status-footer">
+      <div class="status-left">
+        <div class="status-segment">
+          <i class="fa-solid fa-code-branch"></i>
+          <span>main</span>
+        </div>
+        <div class="status-segment hide-mobile">
+          <span class="text-subtle">protocol:</span>
+          <span class="text-secondary">oauth2/github</span>
+        </div>
+      </div>
+      <div class="status-right">
+        <div class="status-segment">
+          <span>UTF-8</span>
+        </div>
+        <div class="status-segment">
+          <span class="text-subtle">First-Commit IDE</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+</body>
+</html>
