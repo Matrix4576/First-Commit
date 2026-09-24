@@ -6,22 +6,18 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"
+BACKEND_DIR = BASE_DIR / "backend"
 
 load_dotenv(dotenv_path=BACKEND_DIR / ".env")
 
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
-print(GITHUB_CLIENT_ID)
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-print(GITHUB_CLIENT_SECRET)
 GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
-print(GITHUB_REDIRECT_URI)
 
 app = FastAPI(
     title="First-Commit",
@@ -32,14 +28,8 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
-
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
-    """Render the primary login screen."""
     return templates.TemplateResponse(
         request=request,
         name="login.html",
@@ -49,7 +39,6 @@ async def login_page(request: Request):
 
 @app.get("/auth/github")
 async def github_login():
-    """Step 1: Redirect the browser to GitHub's OAuth authorization page."""
     params = (
         f"client_id={GITHUB_CLIENT_ID}"
         f"&redirect_uri={GITHUB_REDIRECT_URI}"
@@ -62,14 +51,8 @@ async def github_login():
 
 @app.get("/auth/github/callback", response_class=HTMLResponse)
 async def github_callback(request: Request, code: str | None = None, error: str | None = None):
-    """Step 2: GitHub redirects back here with a temporary `code`.
-    Exchange it for an access token, then fetch the user's profile and repos.
-    """
-    # --- handle OAuth denial ---
     if error or not code:
         return RedirectResponse(url="/")
-
-    # --- exchange code for access token ---
     async with httpx.AsyncClient() as client:
         token_resp = await client.post(
             "https://github.com/login/oauth/access_token",
@@ -86,7 +69,6 @@ async def github_callback(request: Request, code: str | None = None, error: str 
     access_token = token_data.get("access_token", "")
 
     if not access_token:
-        # token exchange failed – send back to login
         return RedirectResponse(url="/")
 
     auth_headers = {
@@ -94,8 +76,6 @@ async def github_callback(request: Request, code: str | None = None, error: str 
         "Accept":        "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-
-    # --- fetch user profile and repositories concurrently ---
     async with httpx.AsyncClient() as client:
         user_resp, repos_resp = await asyncio.gather(
             client.get("https://api.github.com/user",           headers=auth_headers),
@@ -119,13 +99,11 @@ async def github_callback(request: Request, code: str | None = None, error: str 
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
-    """Direct dashboard route (used post-auth; in production guard with session middleware)."""
     return RedirectResponse(url="/")
 
 
 @app.get("/health")
 async def health_check():
-    """Basic health check endpoint."""
     return {"status": "healthy", "service": "first-commit"}
 
 

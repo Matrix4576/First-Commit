@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | First-Commit</title>
+
+  <!-- FontAwesome Icons CDN -->
+  <script src="https://kit.fontawesome.com/a10bb03e8b.js" crossorigin="anonymous"></script>
+
+  <!-- Project Static CSS Files -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+
+<div class="dashboard-shell">
+
+  <!-- =======================================================
+       TOP NAVIGATION
+       ======================================================= -->
+  <nav class="top-nav">
+
+    <!-- Brand -->
+    <a href="/" class="nav-brand" aria-label="First-Commit Home">
+      <div class="nav-brand-icon">
+        <i class="fa-solid fa-code-commit text-blue"></i>
+      </div>
+      <span class="nav-brand-title">First-Commit</span>
+      <span class="nav-brand-version">v0.1.0-alpha</span>
+    </a>
+
+    <!-- Centre: active-repo readout -->
+    <div class="nav-center">
+      <div class="nav-selected-repo" id="nav-repo-indicator">
+        <i class="fa-solid fa-code-branch"></i>
+        <span id="nav-repo-text">no repository selected</span>
+      </div>
+    </div>
+
+    <!-- Right: user + sign-out -->
+    <div class="nav-user">
+      {% if user.avatar_url %}
+        <img class="user-avatar" src="{{ user.avatar_url }}" alt="{{ user.login }}">
+      {% else %}
+        <div class="user-avatar-placeholder">
+          <i class="fa-solid fa-user"></i>
+        </div>
+      {% endif %}
+      <span class="user-name">{{ user.login }}</span>
+      <div class="nav-divider"></div>
+      <a href="/" class="nav-logout" title="Sign out">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign out</span>
+      </a>
+    </div>
+
+  </nav>
+
+  <!-- =======================================================
+       WORKSPACE
+       ======================================================= -->
+  <div class="workspace">
+
+    <!-- ----  SIDEBAR  ---- -->
+    <aside class="sidebar">
+
+      <div class="sidebar-header">
+        <span class="sidebar-section-label">Repositories</span>
+        <span class="sidebar-count" id="sidebar-count">{{ repos | length }}</span>
+      </div>
+
+      <div class="sidebar-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          id="sidebar-filter"
+          placeholder="Filter repos…"
+          autocomplete="off"
+          aria-label="Filter repositories"
+        >
+      </div>
+
+      <div class="repo-list" id="sidebar-repo-list">
+        {% for repo in repos %}
+        <div
+          class="repo-item"
+          data-repo-id="{{ repo.id }}"
+          data-repo-full="{{ repo.full_name }}"
+          data-repo-name="{{ repo.name }}"
+          data-repo-private="{{ 'true' if repo.private else 'false' }}"
+          role="option"
+          tabindex="0"
+          aria-selected="false"
+        >
+          <i class="fa-solid fa-{% if repo.private %}lock{% else %}book{% endif %} repo-item-icon"></i>
+          <div class="repo-item-body">
+            <div class="repo-item-name">{{ repo.name }}</div>
+            <div class="repo-item-meta">
+              {% if repo.language %}
+                <span class="repo-lang">{{ repo.language }}</span>
+              {% endif %}
+              <span class="{% if repo.private %}badge-private{% else %}badge-public{% endif %}">
+                {% if repo.private %}private{% else %}public{% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div style="padding: 1.5rem 1.25rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+          No repositories found.
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="sidebar-footer">
+        <i class="fa-solid fa-layer-group" style="font-size:0.68rem;"></i>
+        <span>{{ repos | length }} repo{% if repos | length != 1 %}s{% endif %} loaded</span>
+      </div>
+
+    </aside>
+
+    <!-- ----  MAIN PANEL  ---- -->
+    <main class="main-panel">
+
+      <!-- Heading -->
+      <div class="panel-heading">
+        <div>
+          <h1 class="panel-title">
+            Good to see you, {{ user.name or user.login }}.
+          </h1>
+          <p class="panel-subtitle">
+            Select a repository below to begin your onboarding analysis. The AI agent will map its architecture and surface safe first issues for you.
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <div>
+            <div class="stat-label">Total Repos</div>
+            <div class="stat-value">{{ repos | length }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fa-solid fa-lock-open"></i>
+          </div>
+          <div>
+            <div class="stat-label">Public</div>
+            <div class="stat-value">
+              {{ repos | selectattr("private", "equalto", false) | list | length }}
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon amber">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div>
+            <div class="stat-label">Private</div>
+            <div class="stat-value">
+              {{ repos | selectattr("private", "equalto", true) | list | length }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repo grid -->
+      <div>
+        <div class="section-label">
+          Choose a Repository to Analyse
+        </div>
+
+        {% if repos %}
+        <div class="repo-grid" id="repo-grid">
+          {% for repo in repos %}
+          <div
+            class="repo-card"
+            data-repo-id="{{ repo.id }}"
+            data-repo-full="{{ repo.full_name }}"
+            data-repo-name="{{ repo.name }}"
+            role="option"
+            tabindex="0"
+            aria-selected="false"
+          >
+            <!-- Selection tick -->
+            <div class="repo-card-check" aria-hidden="true">
+              <i class="fa-solid fa-check"></i>
+            </div>
+
+            <!-- Header row -->
+            <div class="repo-card-header">
+              <i class="fa-solid fa-{% if repo.private %}lock{% else %}book{% endif %} repo-card-icon"></i>
+              <div class="repo-card-name-wrap">
+                <span class="repo-card-name">{{ repo.name }}</span>
+                <span class="repo-card-full-name">{{ repo.full_name }}</span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            {% if repo.description %}
+            <p class="repo-card-desc">{{ repo.description }}</p>
+            {% else %}
+            <p class="repo-card-desc" style="font-style: italic; opacity: 0.6;">No description provided.</p>
+            {% endif %}
+
+            <!-- Footer meta -->
+            <div class="repo-card-footer">
+              {% if repo.language %}
+              <div class="repo-meta">
+                <span class="lang-dot"></span>
+                <span>{{ repo.language }}</span>
+              </div>
+              {% endif %}
+
+              <div class="repo-meta">
+                <i class="fa-regular fa-star"></i>
+                <span>{{ repo.stargazers_count }}</span>
+              </div>
+
+              <div class="repo-meta">
+                <i class="fa-solid fa-code-fork"></i>
+                <span>{{ repo.forks_count }}</span>
+              </div>
+
+              <div class="repo-meta">
+                <i class="fa-regular fa-circle-dot"></i>
+                <span>{{ repo.open_issues_count }} issues</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+          <i class="fa-solid fa-folder-open"></i>
+          <p>No repositories were found on this account.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </main>
+  </div><!-- end .workspace -->
+
+  <!-- =======================================================
+       SELECTION TRAY  (floats above footer when a repo is picked)
+       ======================================================= -->
+  <div class="selection-tray" id="selection-tray" role="status" aria-live="polite">
+    <div class="selection-tray-inner">
+      <div class="tray-repo-label">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="tray-repo-name">—</span>
+      </div>
+      <div class="tray-divider"></div>
+      <span class="tray-hint">Ready to analyse</span>
+      <form id="select-repo-form" method="POST" action="/repo/select">
+        <input type="hidden" name="repo_full_name" id="selected-repo-input" value="">
+        <input type="hidden" name="repo_name"      id="selected-name-input"  value="">
+        <button type="submit" class="begin-btn" aria-label="Begin AI analysis">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          Begin Analysis
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       IDE STATUS FOOTER
+       ======================================================= -->
+  <footer class="ide-status-footer">
+    <div class="status-left">
+      <div class="status-segment">
+        <span class="status-dot"></span>
+        <span>Connected</span>
+      </div>
+      <div class="status-segment">
+        <i class="fa-brands fa-github"></i>
+        <span>{{ user.login }}</span>
+      </div>
+    </div>
+    <div class="status-right">
+      <div class="status-segment" id="footer-repo-status">
+        <i class="fa-solid fa-code-branch"></i>
+        <span>no repo selected</span>
+      </div>
+      <div class="status-segment">
+        <span class="text-subtle">First-Commit IDE</span>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- end .dashboard-shell -->
+
+
+<!-- =======================================================
+     VANILLA JS — selection logic, no libraries
+     ======================================================= -->
+<script>
+(function () {
+  // ------- state -------
+  let selectedRepoId   = null;
+  let selectedFullName = '';
+  let selectedName     = '';
+
+  // ------- elements -------
+  const tray             = document.getElementById('selection-tray');
+  const trayRepoName     = document.getElementById('tray-repo-name');
+  const selectedRepoInput = document.getElementById('selected-repo-input');
+  const selectedNameInput  = document.getElementById('selected-name-input');
+  const navIndicator     = document.getElementById('nav-repo-indicator');
+  const navText          = document.getElementById('nav-repo-text');
+  const footerStatus     = document.getElementById('footer-repo-status');
+  const sidebarFilter    = document.getElementById('sidebar-filter');
+
+  // ------- helpers -------
+  function selectRepo(id, fullName, name) {
+    selectedRepoId   = id;
+    selectedFullName = fullName;
+    selectedName     = name;
+
+    // Update cards
+    document.querySelectorAll('.repo-card').forEach(function (card) {
+      const isThis = card.dataset.repoId === id;
+      card.classList.toggle('selected', isThis);
+      card.setAttribute('aria-selected', isThis ? 'true' : 'false');
+    });
+
+    // Update sidebar rows
+    document.querySelectorAll('.repo-item').forEach(function (item) {
+      const isThis = item.dataset.repoId === id;
+      item.classList.toggle('selected', isThis);
+      item.setAttribute('aria-selected', isThis ? 'true' : 'false');
+    });
+
+    // Update form hidden inputs
+    selectedRepoInput.value = fullName;
+    selectedNameInput.value  = name;
+
+    // Update tray
+    trayRepoName.textContent = fullName;
+    tray.classList.add('visible');
+
+    // Update nav indicator
+    navText.textContent = fullName;
+    navIndicator.classList.add('has-selection');
+
+    // Update footer status bar
+    footerStatus.innerHTML =
+      '<i class="fa-solid fa-code-branch"></i><span>' + fullName + '</span>';
+  }
+
+  // ------- card clicks -------
+  document.querySelectorAll('.repo-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      selectRepo(card.dataset.repoId, card.dataset.repoFull, card.dataset.repoName);
+    });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectRepo(card.dataset.repoId, card.dataset.repoFull, card.dataset.repoName);
+      }
+    });
+  });
+
+  // ------- sidebar row clicks -------
+  document.querySelectorAll('.repo-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      selectRepo(item.dataset.repoId, item.dataset.repoFull, item.dataset.repoName);
+
+      // Scroll the matching card into view in the main panel
+      const card = document.querySelector('.repo-card[data-repo-id="' + item.dataset.repoId + '"]');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    item.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        item.click();
+      }
+    });
+  });
+
+  // ------- sidebar filter -------
+  if (sidebarFilter) {
+    sidebarFilter.addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
+      document.querySelectorAll('#sidebar-repo-list .repo-item').forEach(function (item) {
+        const name = item.dataset.repoName.toLowerCase();
+        item.style.display = (!q || name.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
+

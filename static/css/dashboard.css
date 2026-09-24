@@ -1,0 +1,753 @@
+/* First-Commit: Dashboard Page — Pure CSS */
+
+/* =========================================================
+   PAGE SHELL
+   ========================================================= */
+.dashboard-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+}
+
+/* =========================================================
+   TOP NAVIGATION  (mirrors login header style)
+   ========================================================= */
+.top-nav {
+  height: 60px;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-default);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+/* Brand */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.nav-brand-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease;
+}
+
+.nav-brand:hover .nav-brand-icon {
+  border-color: #484f58;
+}
+
+.nav-brand-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.nav-brand-version {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(48, 54, 61, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-muted);
+}
+
+/* Centre: selected repo indicator */
+.nav-center {
+  display: flex;
+  align-items: center;
+}
+
+.nav-selected-repo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.nav-selected-repo.has-selection {
+  border-color: var(--blue-border);
+  background: var(--blue-bg);
+  color: var(--blue-color);
+}
+
+.nav-selected-repo i {
+  font-size: 0.72rem;
+}
+
+/* Right: user info + logout */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  object-fit: cover;
+}
+
+.user-avatar-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.nav-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-default);
+  margin: 0 0.15rem;
+}
+
+.nav-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-logout:hover {
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+}
+
+/* =========================================================
+   MAIN WORKSPACE  (sidebar + panel)
+   ========================================================= */
+.workspace {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;          /* allow children to scroll */
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-default);
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--border-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sidebar-count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-muted);
+  border-radius: 9999px;
+  padding: 1px 7px;
+}
+
+/* Search box */
+.sidebar-search {
+  margin: 0.75rem 1rem;
+  position: relative;
+}
+
+.sidebar-search i {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding: 0.45rem 0.65rem 0.45rem 2rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.sidebar-search input::placeholder { color: var(--text-muted); }
+.sidebar-search input:focus {
+  border-color: var(--blue-color);
+  background: var(--bg-secondary);
+}
+
+/* Repo list */
+.repo-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+.repo-list::-webkit-scrollbar { width: 4px; }
+.repo-list::-webkit-scrollbar-track { background: transparent; }
+.repo-list::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 2px;
+}
+
+/* Individual sidebar row */
+.repo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 1.25rem;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  user-select: none;
+}
+
+.repo-item:hover {
+  background: rgba(48, 54, 61, 0.45);
+}
+
+.repo-item.selected {
+  background: var(--blue-bg);
+  border-left-color: var(--blue-color);
+}
+
+.repo-item-icon {
+  margin-top: 2px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.repo-item.selected .repo-item-icon {
+  color: var(--blue-color);
+}
+
+.repo-item-body { min-width: 0; flex: 1; }
+
+.repo-item-name {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repo-item.selected .repo-item-name {
+  color: var(--blue-color);
+}
+
+.repo-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.repo-lang {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.badge-private {
+  font-size: 0.62rem;
+  color: var(--amber-color);
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+.badge-public {
+  font-size: 0.62rem;
+  color: var(--safe-color);
+  background: var(--safe-bg);
+  border: 1px solid var(--safe-border);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 0.65rem 1.25rem;
+  border-top: 1px solid var(--border-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* =========================================================
+   MAIN PANEL
+   ========================================================= */
+.main-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Page heading */
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.panel-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.stat-icon.blue  { background: var(--blue-bg);  color: var(--blue-color);  border: 1px solid var(--blue-border);  }
+.stat-icon.green { background: var(--safe-bg);  color: var(--safe-color);  border: 1px solid var(--safe-border);  }
+.stat-icon.amber { background: var(--amber-bg); color: var(--amber-color); border: 1px solid var(--amber-border); }
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  font-family: var(--font-mono);
+}
+
+/* Section label */
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-muted);
+  margin-bottom: 1rem;
+}
+
+/* =========================================================
+   REPO CARD GRID
+   ========================================================= */
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 0.9rem;
+}
+
+/* The card itself is not a link — it's a button-like div */
+.repo-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.repo-card:hover {
+  border-color: #484f58;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Selected state */
+.repo-card.selected {
+  border-color: var(--blue-color);
+  background: rgba(96, 165, 250, 0.05);
+  box-shadow: 0 0 0 1px var(--blue-border), 0 4px 14px rgba(96, 165, 250, 0.1);
+}
+
+/* Checkmark tick in top-right corner */
+.repo-card-check {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: transparent;
+  transition: all 0.15s ease;
+}
+
+.repo-card.selected .repo-card-check {
+  border-color: var(--blue-color);
+  background: var(--blue-color);
+  color: #0d1117;
+}
+
+.repo-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding-right: 1.75rem; /* space for the check */
+}
+
+.repo-card-icon {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.repo-card.selected .repo-card-icon { color: var(--blue-color); }
+
+.repo-card-name-wrap { min-width: 0; }
+
+.repo-card-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.repo-card.selected .repo-card-name { color: var(--blue-color); }
+
+.repo-card-full-name {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.repo-card-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.repo-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.repo-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.repo-meta i { font-size: 0.68rem; }
+
+.lang-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--blue-color);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  border: 1px dashed var(--border-default);
+  border-radius: 10px;
+  background: var(--bg-card);
+}
+
+.empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--border-default);
+}
+
+.empty-state p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   STICKY SELECTION TRAY  (appears at bottom when a repo is picked)
+   ========================================================= */
+.selection-tray {
+  position: fixed;
+  bottom: 40px;         /* sits just above the status footer */
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 40;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+}
+
+.selection-tray.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: all;
+}
+
+.selection-tray-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--blue-border);
+  border-radius: 10px;
+  padding: 0.9rem 1.4rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.1);
+}
+
+.tray-repo-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--blue-color);
+}
+
+.tray-repo-label i { font-size: 0.8rem; }
+
+.tray-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border-default);
+}
+
+.tray-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* "Begin Analysis" primary CTA */
+.begin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--blue-color);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0d1117;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.begin-btn:hover {
+  background: #93c5fd;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.35);
+}
+
+.begin-btn:active {
+  background: #60a5fa;
+}
+
+.begin-btn i { font-size: 0.85rem; }
+
+/* =========================================================
+   IDE STATUS FOOTER
+   ========================================================= */
+.ide-status-footer {
+  height: 32px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 50;
+}
+
+.status-left, .status-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.status-segment {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.status-segment i { font-size: 0.72rem; }
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--safe-color);
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+  display: inline-block;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .main-panel { padding: 1.25rem; }
+}
+
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .nav-center { display: none; }
+  .user-name { display: none; }
+  .selection-tray-inner { flex-wrap: wrap; gap: 0.75rem; }
+  .tray-divider { display: none; }
+  .tray-hint { display: none; }
+}
+
