@@ -16,11 +16,8 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 load_dotenv(dotenv_path=BACKEND_DIR / ".env")
 
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
-print(GITHUB_CLIENT_ID)
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-print(GITHUB_CLIENT_SECRET)
 GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI")
-print(GITHUB_REDIRECT_URI)
 
 app = FastAPI(
     title="First-Commit",
