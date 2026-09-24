@@ -33,7 +33,6 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
-    """Render the primary login screen."""
     return templates.TemplateResponse(
         request=request,
         name="login.html",
@@ -43,7 +42,6 @@ async def login_page(request: Request):
 
 @app.get("/auth/github")
 async def github_login():
-    """Step 1: Redirect the browser to GitHub's OAuth authorization page."""
     params = (
         f"client_id={GITHUB_CLIENT_ID}"
         f"&redirect_uri={GITHUB_REDIRECT_URI}"
@@ -56,14 +54,8 @@ async def github_login():
 
 @app.get("/auth/github/callback", response_class=HTMLResponse)
 async def github_callback(request: Request, code: str | None = None, error: str | None = None):
-    """Step 2: GitHub redirects back here with a temporary `code`.
-    Exchange it for an access token, then fetch the user's profile and repos.
-    """
-    # --- handle OAuth denial ---
     if error or not code:
         return RedirectResponse(url="/")
-
-    # --- exchange code for access token ---
     async with httpx.AsyncClient() as client:
         token_resp = await client.post(
             "https://github.com/login/oauth/access_token",
@@ -80,7 +72,6 @@ async def github_callback(request: Request, code: str | None = None, error: str 
     access_token = token_data.get("access_token", "")
 
     if not access_token:
-        # token exchange failed – send back to login
         return RedirectResponse(url="/")
 
     auth_headers = {
