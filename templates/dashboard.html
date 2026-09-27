@@ -14,6 +14,32 @@
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════
+     ANALYSIS LOADING OVERLAY
+     Shown the moment "Begin Analysis" is clicked.
+     Covers the whole screen while the server runs Gemini.
+     ═══════════════════════════════════════════════ -->
+<div class="analysis-overlay" id="analysis-overlay" aria-hidden="true">
+  <div class="analysis-overlay-inner">
+    <div class="overlay-spinner">
+      <div class="spinner-ring"></div>
+    </div>
+    <div class="overlay-repo-name font-mono" id="overlay-repo-name">—</div>
+    <div class="overlay-status" id="overlay-status">Fetching repository structure…</div>
+    <div class="overlay-steps">
+      <div class="overlay-step active" id="step-1">
+        <i class="fa-solid fa-code-branch"></i> Reading file tree
+      </div>
+      <div class="overlay-step" id="step-2">
+        <i class="fa-solid fa-microchip"></i> Running AI analysis
+      </div>
+      <div class="overlay-step" id="step-3">
+        <i class="fa-regular fa-circle-dot"></i> Classifying issues
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="dashboard-shell">
 
   <!-- =======================================================
@@ -38,8 +64,40 @@
       </div>
     </div>
 
-    <!-- Right: user + sign-out -->
+    <!-- Right: IDE button + user + sign-out -->
     <div class="nav-user">
+      <!-- Add to IDE dropdown -->
+      <div class="ide-dropdown-wrapper" id="nav-ide-wrapper">
+        <button class="nav-ide-btn" id="nav-ide-btn" aria-haspopup="true" aria-expanded="false">
+          <i class="fa-solid fa-plug"></i>
+          <span>Add to IDE</span>
+          <i class="fa-solid fa-chevron-down ide-chevron" style="font-size:0.55rem;"></i>
+        </button>
+        <div class="ide-dropdown-menu" id="nav-ide-menu" aria-hidden="true">
+          <a class="ide-dropdown-item" href="#" data-ide="vscode">
+            <img class="ide-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjMDA3QUNDIiBkPSJNNzQuNiwyLjZMMjUuNiw0OS41TDUsMzUuNEwwLDM5LjV2MjFsMiwyTDUwLDg1bDUwLTE1VjMwTDc0LjYsMi42eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik01MCw2Ny4ybC0zMy4xLTE3LjdMNTAsMTkuM2wzMy4xLDMwLjJMNTAsNjcuMnoiLz48L3N2Zz4=" alt="">
+            VS Code <span class="ide-soon">Coming Soon</span>
+          </a>
+          <a class="ide-dropdown-item" href="#" data-ide="jetbrains">
+            <i class="fa-solid fa-j ide-icon-fa" style="color:#fe315d;"></i>
+            JetBrains (IntelliJ / PyCharm) <span class="ide-soon">Coming Soon</span>
+          </a>
+          <a class="ide-dropdown-item" href="#" data-ide="neovim">
+            <i class="fa-solid fa-terminal ide-icon-fa" style="color:#57a143;"></i>
+            Neovim <span class="ide-soon">Coming Soon</span>
+          </a>
+          <a class="ide-dropdown-item" href="#" data-ide="cursor">
+            <i class="fa-solid fa-arrow-pointer ide-icon-fa" style="color:#8b5cf6;"></i>
+            Cursor <span class="ide-soon">Coming Soon</span>
+          </a>
+          <a class="ide-dropdown-item" href="#" data-ide="zed">
+            <i class="fa-solid fa-bolt ide-icon-fa" style="color:#f59e0b;"></i>
+            Zed <span class="ide-soon">Coming Soon</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-divider"></div>
       {% if user.avatar_url %}
         <img class="user-avatar" src="{{ user.avatar_url }}" alt="{{ user.login }}">
       {% else %}
@@ -397,6 +455,67 @@
       });
     });
   }
+
+  // ------- Nav IDE dropdown -------
+  (function () {
+    const btn  = document.getElementById('nav-ide-btn');
+    const menu = document.getElementById('nav-ide-menu');
+    if (!btn || !menu) return;
+    function closeIde() { menu.style.display = 'none'; btn.setAttribute('aria-expanded', 'false'); }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const open = menu.style.display === 'block';
+      open ? closeIde() : (menu.style.display = 'block', btn.setAttribute('aria-expanded', 'true'));
+    });
+    document.addEventListener('click', closeIde);
+    menu.addEventListener('click', function (e) { e.stopPropagation(); });
+    menu.querySelectorAll('.ide-dropdown-item').forEach(function (item) {
+      item.addEventListener('click', function (e) { e.preventDefault(); closeIde(); });
+    });
+  })();
+
+  // ------- Analysis loading overlay -------
+  (function () {
+    const form    = document.getElementById('select-repo-form');
+    const overlay = document.getElementById('analysis-overlay');
+    const oRepo   = document.getElementById('overlay-repo-name');
+    const oStatus = document.getElementById('overlay-status');
+    const steps   = [
+      document.getElementById('step-1'),
+      document.getElementById('step-2'),
+      document.getElementById('step-3'),
+    ];
+
+    if (!form || !overlay) return;
+
+    const statusMessages = [
+      'Fetching repository structure…',
+      'Running AI analysis with Gemini…',
+      'Classifying open issues…',
+    ];
+
+    form.addEventListener('submit', function () {
+      // Show the repo name in the overlay
+      const repoInput = document.getElementById('selected-repo-input');
+      if (oRepo && repoInput) oRepo.textContent = repoInput.value || '…';
+
+      // Show overlay
+      overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden', 'false');
+
+      // Cycle through step indicators every ~3 seconds to give visual progress
+      var current = 0;
+      steps[0].classList.add('active');
+
+      var interval = setInterval(function () {
+        current++;
+        if (current >= steps.length) { clearInterval(interval); return; }
+        steps.forEach(function (s) { s.classList.remove('active'); });
+        steps[current].classList.add('active');
+        if (oStatus) oStatus.textContent = statusMessages[current];
+      }, 3000);
+    });
+  })();
 
 })();
 </script>

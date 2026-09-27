@@ -87,3 +87,60 @@ html, body {
 .text-primary {
   color: var(--text-primary);
 }
+
+/* ─────────────────────────────────────────────────────
+   SHARED IDE DROPDOWN  (used on both dashboard + analyse)
+   ───────────────────────────────────────────────────── */
+.ide-dropdown-wrapper { position: relative; }
+
+.ide-dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 9px;
+  min-width: 230px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.ide-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  color: #c9d1d9;
+  text-decoration: none;
+  transition: background 0.1s ease;
+  cursor: default;
+}
+
+.ide-dropdown-item:hover { background: #21262d; }
+
+.ide-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.ide-icon-fa { font-size: 0.85rem; width: 16px; text-align: center; flex-shrink: 0; }
+
+.ide-soon {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #21262d;
+  border: 1px solid #21262d;
+  color: #8b949e;
+  flex-shrink: 0;
+}
+
+.ide-chevron { font-size: 0.6rem; transition: transform 0.15s ease; }

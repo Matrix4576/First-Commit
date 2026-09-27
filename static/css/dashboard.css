@@ -19,13 +19,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(13, 17, 23, 0.85);
-  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-default);
   position: sticky;
   top: 0;
   z-index: 50;
   flex-shrink: 0;
+  overflow: visible;
+}
+
+/* Blur applied via pseudo-element so the nav itself doesn't create a stacking
+   context that would trap the absolutely-positioned dropdown inside it */
+.top-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Brand */
@@ -749,5 +760,139 @@
   .selection-tray-inner { flex-wrap: wrap; gap: 0.75rem; }
   .tray-divider { display: none; }
   .tray-hint { display: none; }
+}
+
+
+/* =========================================================
+   NAV "ADD TO IDE" BUTTON  (in top nav, right side)
+   ========================================================= */
+.nav-ide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--blue-color);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+.nav-ide-btn:hover {
+  background: rgba(96, 165, 250, 0.18);
+  border-color: var(--blue-color);
+}
+
+/* The dropdown menu and items inherit the shared styles defined in analyse.css
+   via the .ide-dropdown-wrapper / .ide-dropdown-menu / .ide-dropdown-item classes */
+#nav-ide-wrapper {
+  position: relative;
+}
+
+#nav-ide-menu {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+
+/* =========================================================
+   ANALYSIS LOADING OVERLAY
+   Full-screen — shown while Gemini runs server-side
+   ========================================================= */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50%       { opacity: 1;   transform: scale(1);    }
+}
+
+.analysis-overlay {
+  display: none;            /* JS sets display:flex on form submit */
+  position: fixed;
+  inset: 0;
+  background: var(--bg-primary);
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.analysis-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+}
+
+.overlay-spinner {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 0.25rem;
+}
+
+.spinner-ring {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--blue-color);
+  animation: spin 0.9s linear infinite;
+}
+
+.overlay-repo-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.overlay-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-height: 1.2em;
+  transition: opacity 0.3s ease;
+}
+
+.overlay-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.overlay-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 7px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border-muted);
+  transition: all 0.25s ease;
+}
+
+.overlay-step i { font-size: 0.75rem; flex-shrink: 0; }
+
+.overlay-step.active {
+  color: var(--blue-color);
+  background: var(--blue-bg);
+  border-color: var(--blue-border);
+}
+
+.overlay-step.active i {
+  animation: pulse-dot 1.2s ease-in-out infinite;
 }
 

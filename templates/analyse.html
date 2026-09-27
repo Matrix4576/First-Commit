@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ owner }}/{{ repo }} | First-Commit</title>
+  <script src="https://kit.fontawesome.com/a10bb03e8b.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/analyse.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SKELETON LOADER — visible until body fully renders
+     ═══════════════════════════════════════════════ -->
+<div class="skeleton-overlay" id="skeleton-overlay">
+  <div class="skeleton-nav">
+    <div class="sk-block sk-brand"></div>
+    <div class="sk-block sk-pill"></div>
+    <div class="sk-block sk-avatar"></div>
+  </div>
+  <div class="skeleton-body">
+    <div class="sk-block sk-heading"></div>
+    <div class="sk-block sk-line w80"></div>
+    <div class="sk-block sk-line w60"></div>
+    <div class="sk-stats-row">
+      <div class="sk-block sk-stat"></div>
+      <div class="sk-block sk-stat"></div>
+      <div class="sk-block sk-stat"></div>
+      <div class="sk-block sk-stat"></div>
+    </div>
+    <div class="sk-block sk-section-title"></div>
+    <div class="sk-arch-row">
+      <div class="sk-block sk-card"></div>
+      <div class="sk-block sk-card"></div>
+      <div class="sk-block sk-card"></div>
+    </div>
+    <div class="sk-block sk-section-title mt"></div>
+    <div class="sk-block sk-issue"></div>
+    <div class="sk-block sk-issue"></div>
+    <div class="sk-block sk-issue"></div>
+  </div>
+</div>
+
+<div class="analyse-shell" id="main-content" style="visibility:hidden">
+
+  <!-- ═══════════════════════════════════════════════
+       TOP NAV
+       ═══════════════════════════════════════════════ -->
+  <nav class="top-nav">
+    <a href="/" class="nav-brand" aria-label="First-Commit Home">
+      <div class="nav-brand-icon"><i class="fa-solid fa-code-commit text-blue"></i></div>
+      <span class="nav-brand-title">First-Commit</span>
+      <span class="nav-brand-version">v0.1.0-alpha</span>
+    </a>
+
+    <div class="nav-center">
+      <div class="nav-repo-pill">
+        <i class="fa-solid fa-code-branch"></i>
+        <span class="font-mono">{{ owner }}/{{ repo }}</span>
+      </div>
+    </div>
+
+    <div class="nav-user">
+      <!-- Back to Dashboard -->
+      <a href="/dashboard" class="nav-back-btn" title="Back to dashboard">
+        <i class="fa-solid fa-house"></i>
+        <span>Dashboard</span>
+      </a>
+      <div class="nav-divider"></div>
+      {% if github_login %}
+        <i class="fa-brands fa-github" style="color:var(--text-muted);font-size:1.1rem;"></i>
+        <span class="user-name">{{ github_login }}</span>
+        <div class="nav-divider"></div>
+      {% endif %}
+      <a href="/" class="nav-logout" title="Sign out">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign out</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       BODY
+       ═══════════════════════════════════════════════ -->
+  <div class="analyse-body">
+
+    {% if analysis.error %}
+    <!-- ── ERROR STATE ── -->
+    <div class="error-banner">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>
+        <strong>Analysis failed</strong>
+        <p>{{ analysis.error }}</p>
+      </div>
+    </div>
+
+    {% else %}
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 1 — REPO OVERVIEW
+         ══════════════════════════════════════════════ -->
+    <section class="page-section">
+      <div class="section-eyebrow">
+        <i class="fa-solid fa-wand-magic-sparkles text-blue"></i>
+        <span>AI Codebase Briefing</span>
+      </div>
+
+      <div class="repo-title-row">
+        <h1 class="repo-title">{{ owner }}/<strong>{{ repo }}</strong></h1>
+        {% if analysis.cached %}
+        <span class="cache-badge" title="Served from cache — analysis was run recently">
+          <i class="fa-solid fa-bolt"></i> Cached
+        </span>
+        {% endif %}
+      </div>
+
+      <p class="repo-summary">{{ analysis.summary }}</p>
+
+      <!-- Tech stack pills -->
+      <div class="tag-row">
+        {% for tech in analysis.tech_stack %}
+        <span class="tech-tag">{{ tech }}</span>
+        {% endfor %}
+      </div>
+
+      <!-- Stats row -->
+      <div class="overview-stats">
+        <div class="ov-stat">
+          <div class="ov-stat-value font-mono">{{ analysis.raw_tree | length }}</div>
+          <div class="ov-stat-label">Files</div>
+        </div>
+        <div class="ov-stat">
+          <div class="ov-stat-value font-mono">{{ analysis.languages | length }}</div>
+          <div class="ov-stat-label">Languages</div>
+        </div>
+        <div class="ov-stat">
+          <div class="ov-stat-value font-mono">{{ issues | length }}</div>
+          <div class="ov-stat-label">Open Issues</div>
+        </div>
+        <div class="ov-stat">
+          <div class="ov-stat-value font-mono safe">
+            {{ issues | selectattr("blast_radius","equalto","safe") | list | length }}
+          </div>
+          <div class="ov-stat-label">Safe for Beginners</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 2 — ARCHITECTURE MAP
+         ══════════════════════════════════════════════ -->
+    <section class="page-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fa-solid fa-sitemap text-blue"></i> Architecture Map
+        </h2>
+        <p class="section-sub">Each layer's role, key files, and risk level for a newcomer.</p>
+      </div>
+
+      <!-- Data flow banner -->
+      <div class="dataflow-banner">
+        <i class="fa-solid fa-right-long"></i>
+        <span>{{ analysis.data_flow }}</span>
+      </div>
+
+      <div class="arch-grid">
+        {% for layer in analysis.architecture %}
+        <div class="arch-card risk-{{ layer.risk }}">
+          <div class="arch-card-head">
+            <div class="arch-card-name">{{ layer.name }}</div>
+            <span class="risk-badge risk-badge-{{ layer.risk }}">
+              {% if layer.risk == "safe" %}
+                <i class="fa-solid fa-shield-halved"></i> Safe
+              {% elif layer.risk == "caution" %}
+                <i class="fa-solid fa-triangle-exclamation"></i> Caution
+              {% else %}
+                <i class="fa-solid fa-radiation"></i> Danger
+              {% endif %}
+            </span>
+          </div>
+          <p class="arch-card-role">{{ layer.role }}</p>
+          <div class="arch-card-files">
+            {% for f in layer.key_files %}
+            <span class="file-chip font-mono">
+              <i class="fa-regular fa-file-code"></i> {{ f }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 3 — ONBOARDING GUIDE
+         ══════════════════════════════════════════════ -->
+    <section class="page-section two-col-section">
+
+      <!-- Tips -->
+      <div class="guide-card">
+        <div class="guide-card-header">
+          <i class="fa-solid fa-map text-safe"></i>
+          <h3>Where to Start</h3>
+        </div>
+        <div class="entry-points">
+          {% for ep in analysis.entry_points %}
+          <div class="entry-point font-mono">
+            <i class="fa-solid fa-arrow-right text-blue"></i> {{ ep }}
+          </div>
+          {% endfor %}
+        </div>
+        <ul class="tip-list">
+          {% for tip in analysis.onboarding_tips %}
+          <li><i class="fa-solid fa-circle-check text-safe"></i> {{ tip }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Do Not Touch -->
+      <div class="guide-card danger-card">
+        <div class="guide-card-header">
+          <i class="fa-solid fa-ban text-danger"></i>
+          <h3>Do Not Touch</h3>
+        </div>
+        <p class="guide-card-sub">Files and folders that are too risky to modify as a newcomer.</p>
+        <ul class="dnt-list">
+          {% for item in analysis.do_not_touch %}
+          <li class="font-mono">
+            <i class="fa-solid fa-lock text-danger"></i> {{ item }}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 4 — ISSUES BOARD
+         ══════════════════════════════════════════════ -->
+    <section class="page-section" id="issues-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fa-regular fa-circle-dot text-blue"></i> Open Issues
+        </h2>
+        <p class="section-sub">Sorted by safety. Click any issue to open it on GitHub.</p>
+      </div>
+
+      {% if issues %}
+      <!-- Filter + Sort controls -->
+      <div class="issues-controls">
+        <div class="filter-group" id="filter-group">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn safe"    data-filter="safe">
+            <i class="fa-solid fa-shield-halved"></i> Safe
+          </button>
+          <button class="filter-btn caution" data-filter="caution">
+            <i class="fa-solid fa-triangle-exclamation"></i> Caution
+          </button>
+          <button class="filter-btn danger"  data-filter="danger">
+            <i class="fa-solid fa-radiation"></i> Danger
+          </button>
+        </div>
+        <div class="sort-group">
+          <label class="sort-label" for="sort-select">Sort by</label>
+          <select class="sort-select" id="sort-select">
+            <option value="safety">Safety (safest first)</option>
+            <option value="difficulty">Difficulty (easiest first)</option>
+            <option value="number">Issue number</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="issues-list" id="issues-list">
+        {% for issue in issues %}
+        <a
+          class="issue-row"
+          href="{{ issue.url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-blast="{{ issue.blast_radius }}"
+          data-difficulty="{{ issue.difficulty }}"
+          data-number="{{ issue.number }}"
+        >
+          <div class="issue-row-left">
+            <span class="issue-number font-mono">#{{ issue.number }}</span>
+            <div class="issue-info">
+              <span class="issue-title">{{ issue.title }}</span>
+              <span class="issue-why">{{ issue.why_safe }}</span>
+              {% if issue.files_likely_affected %}
+              <div class="issue-files">
+                {% for f in issue.files_likely_affected[:3] %}
+                <span class="file-chip font-mono">
+                  <i class="fa-regular fa-file-code"></i> {{ f }}
+                </span>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="issue-row-right">
+            <span class="risk-badge risk-badge-{{ issue.blast_radius }}">
+              {% if issue.blast_radius == "safe" %}
+                <i class="fa-solid fa-shield-halved"></i> Safe
+              {% elif issue.blast_radius == "caution" %}
+                <i class="fa-solid fa-triangle-exclamation"></i> Caution
+              {% else %}
+                <i class="fa-solid fa-radiation"></i> Danger
+              {% endif %}
+            </span>
+            <span class="diff-badge diff-{{ issue.difficulty }}">
+              {{ issue.difficulty | capitalize }}
+            </span>
+            <i class="fa-solid fa-arrow-up-right-from-square issue-link-icon"></i>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="empty-state">
+        <i class="fa-regular fa-circle-check"></i>
+        <p>No open issues found on this repository.</p>
+      </div>
+      {% endif %}
+    </section>
+
+    {% endif %}{# end error check #}
+
+    <!-- ══════════════════════════════════════════════
+         IDE PROMO BANNER
+         ══════════════════════════════════════════════ -->
+    <div class="ide-promo-banner">
+      <div class="ide-promo-left">
+        <div class="ide-promo-icon">
+          <i class="fa-solid fa-plug text-blue"></i>
+        </div>
+        <div>
+          <div class="ide-promo-title">First-Commit — right in your IDE</div>
+          <div class="ide-promo-sub">Get onboarding hints, blast-radius warnings and AI explanations without leaving your editor.</div>
+        </div>
+      </div>
+      <div class="ide-promo-right">
+        <div class="ide-dropdown-wrapper">
+          <button class="ide-dropdown-btn" id="ide-dropdown-btn" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-download"></i>
+            <span id="ide-selected-label">Add to IDE</span>
+            <i class="fa-solid fa-chevron-down ide-chevron"></i>
+          </button>
+          <div class="ide-dropdown-menu" id="ide-dropdown-menu" aria-hidden="true">
+            <a class="ide-dropdown-item" href="#" data-ide="vscode">
+              <img class="ide-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjMDA3QUNDIiBkPSJNNzQuNiwyLjZMMjUuNiw0OS41TDUsMzUuNEwwLDM5LjV2MjFsMiwyTDUwLDg1bDUwLTE1VjMwTDc0LjYsMi42eiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik01MCw2Ny4ybC0zMy4xLTE3LjdMNTAsMTkuM2wzMy4xLDMwLjJMNTAsNjcuMnoiLz48L3N2Zz4=" alt="">
+              VS Code
+              <span class="ide-soon">Coming Soon</span>
+            </a>
+            <a class="ide-dropdown-item" href="#" data-ide="jetbrains">
+              <i class="fa-solid fa-j ide-icon-fa" style="color:#fe315d;"></i>
+              JetBrains (IntelliJ / PyCharm)
+              <span class="ide-soon">Coming Soon</span>
+            </a>
+            <a class="ide-dropdown-item" href="#" data-ide="neovim">
+              <i class="fa-solid fa-terminal ide-icon-fa" style="color:#57a143;"></i>
+              Neovim
+              <span class="ide-soon">Coming Soon</span>
+            </a>
+            <a class="ide-dropdown-item" href="#" data-ide="cursor">
+              <i class="fa-solid fa-arrow-pointer ide-icon-fa" style="color:#8b5cf6;"></i>
+              Cursor
+              <span class="ide-soon">Coming Soon</span>
+            </a>
+            <a class="ide-dropdown-item" href="#" data-ide="zed">
+              <i class="fa-solid fa-bolt ide-icon-fa" style="color:#f59e0b;"></i>
+              Zed
+              <span class="ide-soon">Coming Soon</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 5 — CHAT
+         ══════════════════════════════════════════════ -->
+    <section class="page-section chat-section" id="chat-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fa-solid fa-message text-blue"></i> Ask the AI
+        </h2>
+        <p class="section-sub">Ask anything about this codebase. The AI knows the repo structure.</p>
+      </div>
+
+      <div class="chat-window" id="chat-window">
+        <div class="chat-message assistant">
+          <div class="chat-avatar"><i class="fa-solid fa-robot"></i></div>
+          <div class="chat-bubble">
+            Hey! I've analysed <strong>{{ owner }}/{{ repo }}</strong>. Ask me anything — what a file does, where to start, how the data flows, or which issue is safest to pick up.
+          </div>
+        </div>
+      </div>
+
+      <form class="chat-form" id="chat-form" autocomplete="off">
+        <div class="chat-input-row">
+          <textarea
+            id="chat-input"
+            class="chat-input"
+            placeholder="e.g. 'What does main.py do?' or 'Which issue should I start with?'"
+            rows="1"
+            aria-label="Chat message"
+          ></textarea>
+          <button type="submit" class="chat-send-btn" id="chat-send-btn" aria-label="Send">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+        <div class="chat-hints">
+          <button type="button" class="hint-chip" data-hint="What is the entry point of this project?">Entry point?</button>
+          <button type="button" class="hint-chip" data-hint="Which issue has the smallest blast radius?">Safest issue?</button>
+          <button type="button" class="hint-chip" data-hint="Explain the data flow in plain English.">Data flow?</button>
+          <button type="button" class="hint-chip" data-hint="What should I read first as a new developer?">Where to start?</button>
+        </div>
+      </form>
+    </section>
+
+  </div><!-- end .analyse-body -->
+
+  <!-- IDE STATUS FOOTER -->
+  <footer class="ide-status-footer">
+    <div class="status-left">
+      <div class="status-segment">
+        <span class="status-dot"></span>
+        <span>Analysis complete</span>
+      </div>
+      <div class="status-segment">
+        <i class="fa-brands fa-github"></i>
+        <span class="font-mono">{{ owner }}/{{ repo }}</span>
+      </div>
+    </div>
+    <div class="status-right">
+      <div class="status-segment">
+        <i class="fa-solid fa-microchip"></i>
+        <span>Gemini 3.6 Flash</span>
+      </div>
+      <div class="status-segment">
+        <span class="text-subtle">First-Commit IDE</span>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- end .analyse-shell -->
+
+
+<!-- ═══════════════════════════════════════════════
+     VANILLA JS
+     ═══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Skeleton dismiss (runs immediately on parse) ── */
+  window.addEventListener('DOMContentLoaded', function () {
+    var overlay = document.getElementById('skeleton-overlay');
+    var content = document.getElementById('main-content');
+    if (overlay) overlay.style.display = 'none';
+    if (content) content.style.visibility = 'visible';
+  });
+
+  const OWNER = {{ owner | tojson }};
+  const REPO  = {{ repo  | tojson }};
+  const CHAT_URL = `/analyse/${OWNER}/${REPO}/chat`;
+
+  /* ── Issue filter + sort ───────────────────── */
+  const issuesList   = document.getElementById('issues-list');
+  const filterGroup  = document.getElementById('filter-group');
+  const sortSelect   = document.getElementById('sort-select');
+
+  const BLAST_ORDER = { safe: 0, caution: 1, danger: 2 };
+  const DIFF_ORDER  = { beginner: 0, intermediate: 1, advanced: 2 };
+
+  function applyFilterSort() {
+    if (!issuesList) return;
+    const activeFilter = (filterGroup.querySelector('.filter-btn.active') || {}).dataset?.filter || 'all';
+    const sortBy = sortSelect ? sortSelect.value : 'safety';
+    const rows = Array.from(issuesList.querySelectorAll('.issue-row'));
+
+    // Filter visibility
+    rows.forEach(function (row) {
+      const match = activeFilter === 'all' || row.dataset.blast === activeFilter;
+      row.style.display = match ? '' : 'none';
+    });
+
+    // Sort
+    const visible = rows.filter(r => r.style.display !== 'none');
+    visible.sort(function (a, b) {
+      if (sortBy === 'safety') {
+        return (BLAST_ORDER[a.dataset.blast] || 0) - (BLAST_ORDER[b.dataset.blast] || 0);
+      }
+      if (sortBy === 'difficulty') {
+        return (DIFF_ORDER[a.dataset.difficulty] || 0) - (DIFF_ORDER[b.dataset.difficulty] || 0);
+      }
+      return parseInt(a.dataset.number, 10) - parseInt(b.dataset.number, 10);
+    });
+    visible.forEach(function (row) { issuesList.appendChild(row); });
+  }
+
+  if (filterGroup) {
+    filterGroup.addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      filterGroup.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilterSort();
+    });
+  }
+
+  if (sortSelect) {
+    sortSelect.addEventListener('change', applyFilterSort);
+  }
+
+  // Initial sort — safety first by default
+  applyFilterSort();
+
+  /* ── Chat ──────────────────────────────────── */
+  const chatWindow  = document.getElementById('chat-window');
+  const chatForm    = document.getElementById('chat-form');
+  const chatInput   = document.getElementById('chat-input');
+  const chatSendBtn = document.getElementById('chat-send-btn');
+
+  let chatHistory = [];
+
+  function appendMessage(role, text) {
+    const div = document.createElement('div');
+    div.className = 'chat-message ' + role;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'chat-avatar';
+    avatar.innerHTML = role === 'user'
+      ? '<i class="fa-solid fa-user"></i>'
+      : '<i class="fa-solid fa-robot"></i>';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    // Preserve newlines
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    return bubble;
+  }
+
+  function setLoading(on) {
+    chatSendBtn.disabled = on;
+    chatInput.disabled   = on;
+    chatSendBtn.innerHTML = on
+      ? '<i class="fa-solid fa-spinner fa-spin"></i>'
+      : '<i class="fa-solid fa-paper-plane"></i>';
+  }
+
+  async function sendMessage(text) {
+    text = text.trim();
+    if (!text) return;
+
+    appendMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    setLoading(true);
+
+    const thinkingBubble = appendMessage('assistant', '<i class="fa-solid fa-spinner fa-spin"></i> Thinking…');
+
+    try {
+      const res = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: chatHistory.slice(-10) }),
+      });
+      const data = await res.json();
+      const reply = data.reply || 'Sorry, I could not generate a response.';
+      thinkingBubble.innerHTML = reply.replace(/\n/g, '<br>');
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch (err) {
+      thinkingBubble.innerHTML = 'Network error. Please try again.';
+    } finally {
+      setLoading(false);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+  }
+
+  if (chatForm) {
+    chatForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      sendMessage(chatInput.value);
+    });
+  }
+
+  // Auto-expand textarea
+  if (chatInput) {
+    chatInput.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+    });
+    // Shift+Enter = newline, Enter alone = send
+    chatInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(this.value);
+      }
+    });
+  }
+
+  // Hint chips
+  document.querySelectorAll('.hint-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      sendMessage(chip.dataset.hint);
+    });
+  });
+
+  /* ── IDE dropdown ──────────────────────────── */
+  (function () {
+    const btn  = document.getElementById('ide-dropdown-btn');
+    const menu = document.getElementById('ide-dropdown-menu');
+    if (!btn || !menu) return;
+
+    function openMenu() {
+      menu.style.display = 'block';
+      btn.setAttribute('aria-expanded', 'true');
+      menu.setAttribute('aria-hidden', 'false');
+    }
+    function closeMenu() {
+      menu.style.display = 'none';
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('aria-hidden', 'true');
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.style.display === 'block' ? closeMenu() : openMenu();
+    });
+
+    document.addEventListener('click', function () { closeMenu(); });
+    menu.addEventListener('click', function (e) { e.stopPropagation(); });
+
+    // Prevent navigation on "Coming Soon" items
+    menu.querySelectorAll('.ide-dropdown-item').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeMenu();
+      });
+    });
+  })();
+
+})();
+</script>
+
+</body>
+</html>
