@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+httpx
+jinja2
+python-dotenv
+itsdangerous
+pydantic
+google-genai
+python-multipart
