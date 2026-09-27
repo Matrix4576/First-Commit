@@ -15,27 +15,124 @@
 <body>
 
 <!-- ═══════════════════════════════════════════════
-     ANALYSIS LOADING OVERLAY
+     PROCEDURAL ANALYSIS LOADING SCREEN & SKELETON
      Shown the moment "Begin Analysis" is clicked.
      Covers the whole screen while the server runs Gemini.
      ═══════════════════════════════════════════════ -->
-<div class="analysis-overlay" id="analysis-overlay" aria-hidden="true">
-  <div class="analysis-overlay-inner">
-    <div class="overlay-spinner">
-      <div class="spinner-ring"></div>
+<div class="analysis-overlay" id="analysis-overlay" style="display: none;" aria-hidden="true">
+
+  <!-- Focused Procedural HUD Card (floats over blurred dashboard) -->
+  <div class="procedural-modal">
+    <!-- Window Bar -->
+    <div class="procedural-header">
+      <div class="window-dots">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+      </div>
+      <div class="procedural-title">
+        <i class="fa-solid fa-microchip text-blue"></i>
+        <span>First-Commit AI Engine</span>
+        <span class="engine-badge font-mono">Gemini 3.8 Flash</span>
+      </div>
+      <div class="procedural-repo-badge font-mono" id="overlay-repo-badge">
+        <i class="fa-solid fa-code-branch"></i>
+        <span id="overlay-repo-name">—</span>
+      </div>
     </div>
-    <div class="overlay-repo-name font-mono" id="overlay-repo-name">—</div>
-    <div class="overlay-status" id="overlay-status">Fetching repository structure…</div>
-    <div class="overlay-steps">
-      <div class="overlay-step active" id="step-1">
-        <i class="fa-solid fa-code-branch"></i> Reading file tree
+
+    <!-- Glowing Procedural Progress Bar -->
+    <div class="procedural-progress-track">
+      <div class="procedural-progress-bar" id="procedural-progress-bar" style="width: 15%;"></div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="procedural-body">
+      <!-- Status Readout -->
+      <div class="procedural-status-row">
+        <div class="status-left">
+          <div class="procedural-spinner">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+          </div>
+          <div>
+            <div class="procedural-status-main" id="overlay-status">Initializing repository analysis…</div>
+            <div class="procedural-status-sub font-mono" id="overlay-status-sub">Connecting to GitHub REST API</div>
+          </div>
+        </div>
+        <div class="procedural-pct font-mono" id="overlay-pct">15%</div>
       </div>
-      <div class="overlay-step" id="step-2">
-        <i class="fa-solid fa-microchip"></i> Running AI analysis
+
+      <!-- Procedural Steps Pipeline -->
+      <div class="procedural-pipeline">
+        <div class="pipeline-step active" id="pstep-1">
+          <div class="step-indicator">
+            <span class="step-num font-mono">01</span>
+            <i class="fa-solid fa-circle-notch fa-spin step-spinner"></i>
+            <i class="fa-solid fa-circle-check step-check"></i>
+          </div>
+          <div class="step-info">
+            <div class="step-name">Scan File Tree & Repository Manifest</div>
+            <div class="step-detail">Enumerating blobs, directories, and branch topology</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step" id="pstep-2">
+          <div class="step-indicator">
+            <span class="step-num font-mono">02</span>
+            <i class="fa-solid fa-circle-notch fa-spin step-spinner"></i>
+            <i class="fa-solid fa-circle-check step-check"></i>
+          </div>
+          <div class="step-info">
+            <div class="step-name">Extract Configs & Readme Documentation</div>
+            <div class="step-detail">Parsing dependencies, build scripts, and project metadata</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step" id="pstep-3">
+          <div class="step-indicator">
+            <span class="step-num font-mono">03</span>
+            <i class="fa-solid fa-circle-notch fa-spin step-spinner"></i>
+            <i class="fa-solid fa-circle-check step-check"></i>
+          </div>
+          <div class="step-info">
+            <div class="step-name">Gemini Codebase Architecture Synthesis</div>
+            <div class="step-detail">Mapping system layers, key entry points & data flow</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step" id="pstep-4">
+          <div class="step-indicator">
+            <span class="step-num font-mono">04</span>
+            <i class="fa-solid fa-circle-notch fa-spin step-spinner"></i>
+            <i class="fa-solid fa-circle-check step-check"></i>
+          </div>
+          <div class="step-info">
+            <div class="step-name">Triage Issues & Calculate Blast Radius</div>
+            <div class="step-detail">Determining safe first PR tasks and danger zones</div>
+          </div>
+        </div>
       </div>
-      <div class="overlay-step" id="step-3">
-        <i class="fa-regular fa-circle-dot"></i> Classifying issues
+
+      <!-- Live Terminal Console Log -->
+      <div class="procedural-terminal">
+        <div class="terminal-bar">
+          <span class="terminal-label font-mono"><i class="fa-solid fa-terminal"></i> execution.log</span>
+          <span class="terminal-pulse"><span class="terminal-pulse-dot"></span> LIVE</span>
+        </div>
+        <div class="terminal-content font-mono" id="overlay-terminal-lines">
+          <div class="terminal-line"><span class="t-ts">[0.0s]</span> <span class="t-cmd">&gt; select_repo</span>: <span class="t-val" id="t-repo-val">owner/repo</span></div>
+          <div class="terminal-line"><span class="t-ts">[0.2s]</span> <span class="t-info">Querying git tree recursively (depth=max)...</span><span class="t-cursor"></span></div>
+        </div>
       </div>
+    </div>
+
+    <!-- Procedural Footer -->
+    <div class="procedural-footer">
+      <div class="footer-hint">
+        <i class="fa-solid fa-shield-halved text-safe"></i>
+        <span>Calibrating safe boundaries for junior contributors</span>
+      </div>
+      <div class="footer-tag font-mono">First-Commit IDE v0.1.0</div>
     </div>
   </div>
 </div>
@@ -68,10 +165,10 @@
     <div class="nav-user">
       <!-- Add to IDE dropdown -->
       <div class="ide-dropdown-wrapper" id="nav-ide-wrapper">
-        <button class="nav-ide-btn" id="nav-ide-btn" aria-haspopup="true" aria-expanded="false">
-          <i class="fa-solid fa-plug"></i>
+        <button class="nav-ide-btn" id="nav-ide-btn" aria-haspopup="true" aria-expanded="false" title="Add First-Commit to your IDE">
+          <i class="fa-solid fa-arrow-down-to-bracket"></i>
           <span>Add to IDE</span>
-          <i class="fa-solid fa-chevron-down ide-chevron" style="font-size:0.55rem;"></i>
+          <i class="fa-solid fa-chevron-down ide-chevron"></i>
         </button>
         <div class="ide-dropdown-menu" id="nav-ide-menu" aria-hidden="true">
           <a class="ide-dropdown-item" href="#" data-ide="vscode">
@@ -474,46 +571,116 @@
     });
   })();
 
-  // ------- Analysis loading overlay -------
+  // ------- Procedural Analysis Loading Engine -------
   (function () {
-    const form    = document.getElementById('select-repo-form');
-    const overlay = document.getElementById('analysis-overlay');
-    const oRepo   = document.getElementById('overlay-repo-name');
-    const oStatus = document.getElementById('overlay-status');
-    const steps   = [
-      document.getElementById('step-1'),
-      document.getElementById('step-2'),
-      document.getElementById('step-3'),
+    const form       = document.getElementById('select-repo-form');
+    const overlay    = document.getElementById('analysis-overlay');
+    const oRepo      = document.getElementById('overlay-repo-name');
+    const tRepoVal   = document.getElementById('t-repo-val');
+    const oStatus    = document.getElementById('overlay-status');
+    const oStatusSub = document.getElementById('overlay-status-sub');
+    const oPct       = document.getElementById('overlay-pct');
+    const pBar       = document.getElementById('procedural-progress-bar');
+    const termLines  = document.getElementById('overlay-terminal-lines');
+
+    const steps = [
+      document.getElementById('pstep-1'),
+      document.getElementById('pstep-2'),
+      document.getElementById('pstep-3'),
+      document.getElementById('pstep-4'),
     ];
 
     if (!form || !overlay) return;
 
-    const statusMessages = [
-      'Fetching repository structure…',
-      'Running AI analysis with Gemini…',
-      'Classifying open issues…',
-    ];
+    function addTermLine(sec, cmd, text) {
+      if (!termLines) return;
+      const row = document.createElement('div');
+      row.className = 'terminal-line';
+      row.innerHTML = '<span class="t-ts">[' + sec + 's]</span> ' +
+        (cmd ? '<span class="t-cmd">' + cmd + '</span> ' : '') +
+        '<span class="t-info">' + text + '</span>';
+      const oldCursor = termLines.querySelector('.t-cursor');
+      if (oldCursor) oldCursor.remove();
+      row.innerHTML += '<span class="t-cursor"></span>';
+      termLines.appendChild(row);
+      termLines.scrollTop = termLines.scrollHeight;
+    }
 
     form.addEventListener('submit', function () {
-      // Show the repo name in the overlay
       const repoInput = document.getElementById('selected-repo-input');
-      if (oRepo && repoInput) oRepo.textContent = repoInput.value || '…';
+      const targetRepo = repoInput ? (repoInput.value || 'target/repository') : 'target/repository';
+
+      if (oRepo) oRepo.textContent = targetRepo;
+      if (tRepoVal) tRepoVal.textContent = targetRepo;
 
       // Show overlay
       overlay.style.display = 'flex';
       overlay.setAttribute('aria-hidden', 'false');
 
-      // Cycle through step indicators every ~3 seconds to give visual progress
-      var current = 0;
-      steps[0].classList.add('active');
+      // Stage Timeline Sequence
+      const timeline = [
+        {
+          delay: 1400,
+          stepIdx: 1,
+          pct: 42,
+          main: 'Extracting configuration & readme manifests…',
+          sub: 'Parsing package.json / pyproject.toml / requirements',
+          sec: '1.4',
+          cmd: '> parse_manifests',
+          log: 'Found build definitions & project dependencies'
+        },
+        {
+          delay: 3200,
+          stepIdx: 2,
+          pct: 75,
+          main: 'Gemini 3.8 Flash synthesizing architecture…',
+          sub: 'Mapping component layers, entry points & risk ratings',
+          sec: '3.2',
+          cmd: '> invoke_gemini',
+          log: 'Prompt dispatched to Gemini Flash (evaluating 300 tree nodes)'
+        },
+        {
+          delay: 5600,
+          stepIdx: 3,
+          pct: 92,
+          main: 'Triaging open issues by safety blast radius…',
+          sub: 'Calculating difficulty scores & safe beginner issues',
+          sec: '5.6',
+          cmd: '> triage_issues',
+          log: 'Classifying open issues for newcomer safety profile'
+        },
+        {
+          delay: 8000,
+          stepIdx: 3,
+          pct: 98,
+          main: 'Finalizing safe PR roadmap…',
+          sub: 'Preparing interactive IDE onboarding report',
+          sec: '8.0',
+          cmd: '> render_report',
+          log: 'Hydrating architecture map & interactive guidance'
+        }
+      ];
 
-      var interval = setInterval(function () {
-        current++;
-        if (current >= steps.length) { clearInterval(interval); return; }
-        steps.forEach(function (s) { s.classList.remove('active'); });
-        steps[current].classList.add('active');
-        if (oStatus) oStatus.textContent = statusMessages[current];
-      }, 3000);
+      timeline.forEach(function (stage) {
+        setTimeout(function () {
+          // Complete previous steps
+          for (var i = 0; i < stage.stepIdx; i++) {
+            if (steps[i]) {
+              steps[i].classList.remove('active');
+              steps[i].classList.add('completed');
+            }
+          }
+          // Activate current step
+          if (steps[stage.stepIdx]) {
+            steps[stage.stepIdx].classList.add('active');
+          }
+          if (pBar) pBar.style.width = stage.pct + '%';
+          if (oPct) oPct.textContent = stage.pct + '%';
+          if (oStatus) oStatus.textContent = stage.main;
+          if (oStatusSub) oStatusSub.textContent = stage.sub;
+          addTermLine(stage.sec, stage.cmd, stage.log);
+        }, stage.delay);
+      });
     });
   })();
 

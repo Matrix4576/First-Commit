@@ -95,54 +95,60 @@ async def github_callback(
     if error or not code:
         return RedirectResponse(url="/")
 
-    async with httpx.AsyncClient() as client:
-        token_resp = await client.post(
-            "https://github.com/login/oauth/access_token",
-            json={
-                "client_id":     GITHUB_CLIENT_ID,
-                "client_secret": GITHUB_CLIENT_SECRET,
-                "code":          code,
-                "redirect_uri":  GITHUB_REDIRECT_URI,
+    try:
+        async with httpx.AsyncClient() as client:
+            token_resp = await client.post(
+                "https://github.com/login/oauth/access_token",
+                json={
+                    "client_id":     GITHUB_CLIENT_ID,
+                    "client_secret": GITHUB_CLIENT_SECRET,
+                    "code":          code,
+                    "redirect_uri":  GITHUB_REDIRECT_URI,
+                },
+                headers={"Accept": "application/json"},
+                timeout=10.0,
+            )
+
+        token_data   = token_resp.json()
+        access_token = token_data.get("access_token", "")
+
+        if not access_token:
+            return RedirectResponse(url="/")
+
+        auth_headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept":        "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+        async with httpx.AsyncClient() as client:
+            user_resp, repos_resp = await asyncio.gather(
+                client.get("https://api.github.com/user", headers=auth_headers, timeout=15.0),
+                client.get(
+                    "https://api.github.com/user/repos?sort=updated&per_page=50",
+                    headers=auth_headers,
+                    timeout=15.0,
+                ),
+            )
+
+        user  = user_resp.json()
+        repos = repos_resp.json() if isinstance(repos_resp.json(), list) else []
+
+        response = templates.TemplateResponse(
+            request=request,
+            name="dashboard.html",
+            context={
+                "app_name":     "First-Commit",
+                "user":         user,
+                "repos":        repos,
+                "access_token": access_token,
             },
-            headers={"Accept": "application/json"},
         )
-
-    token_data   = token_resp.json()
-    access_token = token_data.get("access_token", "")
-
-    if not access_token:
+        # Persist the token in a signed cookie so subsequent pages can use it
+        _set_session(response, {"access_token": access_token, "github_login": user.get("login", "")})
+        return response
+    except Exception as e:
+        print(f"GitHub Auth Error: {e}")
         return RedirectResponse(url="/")
-
-    auth_headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Accept":        "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    async with httpx.AsyncClient() as client:
-        user_resp, repos_resp = await asyncio.gather(
-            client.get("https://api.github.com/user", headers=auth_headers),
-            client.get(
-                "https://api.github.com/user/repos?sort=updated&per_page=50",
-                headers=auth_headers,
-            ),
-        )
-
-    user  = user_resp.json()
-    repos = repos_resp.json() if isinstance(repos_resp.json(), list) else []
-
-    response = templates.TemplateResponse(
-        request=request,
-        name="dashboard.html",
-        context={
-            "app_name":     "First-Commit",
-            "user":         user,
-            "repos":        repos,
-            "access_token": access_token,
-        },
-    )
-    # Persist the token in a signed cookie so subsequent pages can use it
-    _set_session(response, {"access_token": access_token, "github_login": user.get("login", "")})
-    return response
 
 
 # ─────────────────────────────────────────────
@@ -336,4 +342,3 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=True)
-

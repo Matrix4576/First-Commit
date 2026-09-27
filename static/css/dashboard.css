@@ -765,134 +765,583 @@
 
 /* =========================================================
    NAV "ADD TO IDE" BUTTON  (in top nav, right side)
+   Matches screenshot: solid blue button, black text & icons
    ========================================================= */
-.nav-ide-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.75rem;
-  background: var(--blue-bg);
-  border: 1px solid var(--blue-border);
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--blue-color);
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-  white-space: nowrap;
-  font-family: var(--font-sans);
-}
-
-.nav-ide-btn:hover {
-  background: rgba(96, 165, 250, 0.18);
-  border-color: var(--blue-color);
-}
-
-/* The dropdown menu and items inherit the shared styles defined in analyse.css
-   via the .ide-dropdown-wrapper / .ide-dropdown-menu / .ide-dropdown-item classes */
-#nav-ide-wrapper {
+.ide-dropdown-wrapper {
   position: relative;
 }
 
-#nav-ide-menu {
-  top: calc(100% + 6px);
-  bottom: auto;
+.nav-ide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.88rem;
+  background: #58a6ff !important;
+  border: none !important;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0d1117 !important;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  line-height: 1.2;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.nav-ide-btn:hover {
+  background: #79b8ff;
+  box-shadow: 0 2px 10px rgba(88, 166, 255, 0.35);
+}
+
+.nav-ide-btn:active {
+  background: #388bfd;
+  transform: scale(0.98);
+}
+
+.nav-ide-btn i {
+  color: #0d1117;
+  font-size: 0.82rem;
+}
+
+.nav-ide-btn .ide-chevron {
+  font-size: 0.65rem;
+  margin-left: 0.1rem;
+  transition: transform 0.2s ease;
+}
+
+.nav-ide-btn[aria-expanded="true"] .ide-chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.ide-dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  min-width: 250px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 1000;
+  overflow: hidden;
+  animation: ideDropdownIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ideDropdownIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ide-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease;
+  cursor: default;
+}
+
+.ide-dropdown-item:hover {
+  background: #21262d;
+  color: var(--text-primary);
+}
+
+.ide-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.ide-icon-fa {
+  font-size: 0.85rem;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.ide-soon {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
 }
 
 /* =========================================================
-   ANALYSIS LOADING OVERLAY
-   Full-screen — shown while Gemini runs server-side
+   PROCEDURAL ANALYSIS LOADING SCREEN & SKELETON
+   Activated on "Begin Analysis" submit
+   Maintains "The Trusted IDE" aesthetic
    ========================================================= */
-@keyframes spin {
-  to { transform: rotate(360deg); }
+
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
 }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 0.4; transform: scale(0.85); }
-  50%       { opacity: 1;   transform: scale(1);    }
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+
+@keyframes blinkCursor {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
 }
 
 .analysis-overlay {
-  display: none;            /* JS sets display:flex on form submit */
+  display: none;            /* Hidden by default; JS sets display:flex on form submit */
   position: fixed;
   inset: 0;
-  background: var(--bg-primary);
-  z-index: 9999;
+  background: rgba(1, 4, 9, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  padding: 1.5rem;
+  overflow-y: auto;
 }
 
-.analysis-overlay-inner {
+/* Background Skeleton Preview — hidden for card-over-blur mode
+   (the real page content shows through the blurred backdrop) */
+.overlay-skeleton-preview {
+  display: none;
+}
+
+.sk-block {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #161b22 25%, #2a3140 50%, #161b22 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.8s infinite linear;
+}
+
+.sk-preview-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+}
+
+.sk-preview-brand { width: 140px; height: 20px; }
+.sk-preview-pill  { width: 180px; height: 26px; border-radius: 9999px; }
+.sk-preview-user  { width: 100px; height: 20px; }
+
+.sk-preview-content {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1.25rem;
-  text-align: center;
-  max-width: 340px;
+}
+
+.sk-preview-title { width: 320px; height: 32px; }
+.sk-preview-desc  { width: 85%; height: 16px; }
+
+.sk-preview-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.sk-preview-card { height: 74px; border-radius: 8px; }
+
+.sk-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.sk-preview-arch { height: 130px; border-radius: 10px; }
+
+
+/* Foreground Procedural Modal HUD — floats as a card over blurred dashboard */
+.procedural-modal {
+  position: relative;
+  z-index: 10;
   width: 100%;
+  max-width: 620px;
+  background: #161b22;
+  border: 1px solid rgba(88, 166, 255, 0.15);
+  border-radius: 14px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 40px rgba(88, 166, 255, 0.08);
+  overflow: hidden;
+  animation: proceduralModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.overlay-spinner {
-  width: 52px;
-  height: 52px;
-  margin-bottom: 0.25rem;
+@keyframes proceduralModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.spinner-ring {
-  width: 52px;
-  height: 52px;
+/* Modal Window Bar */
+.procedural-header {
+  padding: 0.85rem 1.25rem;
+  background: #0d1117;
+  border-bottom: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.window-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.window-dots .dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: 3px solid var(--border-default);
-  border-top-color: var(--blue-color);
-  animation: spin 0.9s linear infinite;
 }
+.dot-red    { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green  { background: #27c93f; }
 
-.overlay-repo-name {
-  font-size: 1rem;
+.procedural-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
 }
 
-.overlay-status {
-  font-size: 0.8rem;
+.engine-badge {
+  font-size: 0.68rem;
+  color: var(--blue-color);
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.procedural-repo-badge {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.procedural-repo-badge i {
+  color: var(--blue-color);
+  font-size: 0.7rem;
+}
+
+/* Glowing Progress Track */
+.procedural-progress-track {
+  height: 3px;
+  background: #21262d;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.procedural-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #388bfd, #58a6ff, #34d399);
+  box-shadow: 0 0 10px rgba(88, 166, 255, 0.7);
+  transition: width 0.4s ease;
+  width: 15%;
+}
+
+/* Modal Body */
+.procedural-body {
+  padding: 1.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Main Status Row */
+.procedural-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.procedural-status-row .status-left {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.procedural-spinner {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--blue-color);
+  flex-shrink: 0;
+}
+
+.procedural-status-main {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.procedural-status-sub {
+  font-size: 0.74rem;
   color: var(--text-muted);
-  min-height: 1.2em;
-  transition: opacity 0.3s ease;
 }
 
-.overlay-steps {
+.procedural-pct {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--blue-color);
+}
+
+/* Pipeline Step Sequence */
+.procedural-pipeline {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.5rem;
-  width: 100%;
 }
 
-.overlay-step {
+.pipeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pipeline-step .step-indicator {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 7px;
-  font-size: 0.8rem;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: #21262d;
   color: var(--text-muted);
-  background: var(--bg-card);
-  border: 1px solid var(--border-muted);
-  transition: all 0.25s ease;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
-.overlay-step i { font-size: 0.75rem; flex-shrink: 0; }
+.pipeline-step .step-spinner,
+.pipeline-step .step-check {
+  display: none;
+}
 
-.overlay-step.active {
-  color: var(--blue-color);
-  background: var(--blue-bg);
+.pipeline-step .step-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.pipeline-step .step-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.pipeline-step .step-detail {
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+  transition: color 0.2s ease;
+}
+
+/* Active Step */
+.pipeline-step.active {
+  background: rgba(96, 165, 250, 0.05);
   border-color: var(--blue-border);
 }
 
-.overlay-step.active i {
-  animation: pulse-dot 1.2s ease-in-out infinite;
+.pipeline-step.active .step-indicator {
+  background: var(--blue-bg);
+  color: var(--blue-color);
+}
+
+.pipeline-step.active .step-num { display: none; }
+.pipeline-step.active .step-spinner { display: inline-block; font-size: 0.75rem; color: var(--blue-color); }
+
+.pipeline-step.active .step-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pipeline-step.active .step-detail {
+  color: var(--text-secondary);
+}
+
+/* Completed Step */
+.pipeline-step.completed {
+  border-color: rgba(52, 211, 153, 0.2);
+  background: rgba(52, 211, 153, 0.03);
+}
+
+.pipeline-step.completed .step-indicator {
+  background: var(--safe-bg);
+  color: var(--safe-color);
+}
+
+.pipeline-step.completed .step-num { display: none; }
+.pipeline-step.completed .step-spinner { display: none; }
+.pipeline-step.completed .step-check { display: inline-block; font-size: 0.78rem; color: var(--safe-color); }
+
+.pipeline-step.completed .step-name {
+  color: var(--text-secondary);
+}
+
+.pipeline-step.completed .step-detail {
+  color: var(--text-muted);
+}
+
+/* Procedural Terminal Window */
+.procedural-terminal {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  padding: 0.4rem 0.85rem;
+  background: #161b22;
+  border-bottom: 1px solid #21262d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.terminal-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.terminal-pulse {
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--safe-color);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.terminal-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--safe-color);
+  animation: pulseGlow 1.2s infinite ease-in-out;
+}
+
+.terminal-content {
+  padding: 0.75rem 0.9rem;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  max-height: 95px;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.terminal-line {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.t-ts   { color: var(--text-subtle); flex-shrink: 0; }
+.t-cmd  { color: var(--blue-color); font-weight: 500; }
+.t-val  { color: #f0f6fc; }
+.t-info { color: var(--text-secondary); }
+.t-ok   { color: var(--safe-color); }
+.t-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 12px;
+  background: var(--blue-color);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: blinkCursor 0.8s infinite;
+}
+
+/* Modal Footer */
+.procedural-footer {
+  padding: 0.75rem 1.6rem;
+  background: #0d1117;
+  border-top: 1px solid #21262d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.footer-hint i { font-size: 0.8rem; }
+
+.footer-tag {
+  font-size: 0.68rem;
+  color: var(--text-subtle);
+}
+
+@media (max-width: 640px) {
+  .procedural-modal { max-width: 100%; border-radius: 8px; }
+  .procedural-body { padding: 1.1rem; }
+  .procedural-repo-badge { display: none; }
+  .overlay-skeleton-preview { display: none; }
 }
 
